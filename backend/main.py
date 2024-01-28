@@ -169,9 +169,6 @@ def get_tree_for_degree(school, degree):
         if d[0] == degree:
             courses = d[2]
             break
-    # still not working properly
-    # courses are being saved with incorrect trees
-        i = 0
     for course in courses:
         # if course in seen_courses.keys():
         #     tree[degree][course] = seen_courses[course]
@@ -182,11 +179,9 @@ def get_tree_for_degree(school, degree):
         tree_info = get_complete_preq(course, seen_courses)
         tree[degree][course] = {"prerequisiteTree": tree_info['completeTree'], "height": tree_info['height']}
         
-    # for key in seen_courses.keys():
-    #     print(key)
     # print(seen_courses['I&CSCI45C'])
-    file = open('compsci.json', 'w')
-    json.dump(tree, file)
+    # file = open('compsci.json', 'w')
+    # json.dump(tree, file)
     return tree
     
 
