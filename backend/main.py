@@ -86,18 +86,20 @@ def get_course_prereq(course_id: str):
     if res['statusCode'] == 200:
         return res['payload']['prerequisiteTree']
     else:
+        # no info abt the course was found
         return {}
 
 @app.get("/courses/complete-prereq/{course_id}")
 def get_complete_preq(course_id:str, seen_courses={}):
     # gets the complete pre req tree for a certain course
-    # pretty slow / has repeat nodes
+    # pretty slow
     seen_courses = seen_courses
     tree = get_course_prereq(course_id)
     return process_tree(tree, seen_courses)
 
 def process_tree(tree: dict, seen_courses={}) -> (dict, int):
     # helper to create the complete pre req tree for a course
+    # recurses down to build entire tree
     seen_courses = seen_courses
     complete_tree = {'completeTree': {}, 'height': 0}
     if 'height' in tree.keys():
@@ -158,8 +160,10 @@ def process_tree(tree: dict, seen_courses={}) -> (dict, int):
 def get_tree_for_degree(school, degree):
     # search for degree in array
     # hardcoded for now
-    degree = 2 #compsci
-    courses = degree_courses[school][degree][2]
+    degree = 'Computer Science, B.S.'
+    for d in degree_courses[school]:
+        if d[0] == degree:
+            courses = d[2]
     pass
     
 
