@@ -12,6 +12,7 @@ import requests
 # from dotenv import load_env
 # import os
 from fastapi.middleware.cors import CORSMiddleware
+import json
 
 # load_env()
 
@@ -28,6 +29,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+file = open('../degreeCourses.json')
+degree_courses = json.load(file)
 
 
 # The line starting with "@" is a Python decorator. For this tutorial, you
@@ -92,7 +96,7 @@ def get_complete_preq(course_id:str, seen_courses={}):
     tree = get_course_prereq(course_id)
     return process_tree(tree, seen_courses)
 
-def process_tree(tree: dict) -> (dict, int):
+def process_tree(tree: dict, seen_courses={}) -> (dict, int):
     # helper to create the complete pre req tree for a course
     seen_courses = seen_courses
     complete_tree = {'completeTree': {}, 'height': 0}
@@ -147,6 +151,14 @@ def process_tree(tree: dict) -> (dict, int):
         if complete_tree['completeTree']['AND'] == [] or complete_tree['completeTree']['AND'] == [{}]:
             complete_tree['completeTree'] = {}
     return complete_tree
+
+@app.get("/tree/{school}/{degree}")
+def get_tree_for_degree(school, degree):
+    # search for degree in array
+    # hardcoded for now
+    degree = 2 #compsci
+    courses = degree_courses[school][degree][2]
+    pass
     
 
 
@@ -158,4 +170,4 @@ def add_course(course_id):
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", port=5000, reload=True)
+    uvicorn.run("main:app", port=5001, reload=True)
