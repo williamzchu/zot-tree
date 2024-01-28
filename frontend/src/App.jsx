@@ -18,7 +18,7 @@ function App() {
 
   useEffect(
     () => {
-      fetch('mathminor_prereqs.json')
+      fetch("http://localhost:5001/cse")
       .then((response) => response.json())
       .then(json =>{
         setData(json)

@@ -1,8 +1,8 @@
 import json
 import requests
 
-department = "Mathematics"
-degree = "Mathematics, Minor"
+department = "Engineering"
+degree = "Computer Science and Engineering, B.S."
 f = open("degreeCourses.json", 'r')
 s = json.load(f)[department]
 

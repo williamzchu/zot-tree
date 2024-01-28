@@ -20,17 +20,16 @@ import uvicorn
 # of the first things you should do in your code.
 app = FastAPI()
 
+degrees = {}
+
 @app.get("/{degree}")
 def get_degree(degree: str):
     try:
-        print(os.getcwd())
-        f = open( degree + ".json", 'r')
-        print(f)
+        f = open(degree + ".json", 'r')
         s = json.load(f)
         return s
     except (FileNotFoundError):
         return {"Degree not Found": []}
-    
 
 if __name__ == "__main__":
     uvicorn.run("backend_main:app", port=5000, reload=True)

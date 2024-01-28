@@ -75,7 +75,7 @@ def read_root():
 @app.get("/{degree}")
 def get_degree(degree: str):
     try:
-        f = open(degree + ".json", 'w')
+        f = open(degree + ".json", 'r')
         s = json.load(f)
         return s
     except (FileNotFoundError):
