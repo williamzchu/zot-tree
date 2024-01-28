@@ -9,12 +9,9 @@ from typing import Optional
 import uvicorn
 from fastapi import FastAPI, status
 import requests
-# from dotenv import load_env
-# import os
 from fastapi.middleware.cors import CORSMiddleware
 import json
 
-# load_env()
 
 # Initializing and setting configurations for your FastAPI application is one
 # of the first things you should do in your code.
@@ -33,44 +30,10 @@ app.add_middleware(
 file = open('../degreeCourses.json')
 degree_courses = json.load(file)
 
-
-# The line starting with "@" is a Python decorator. For this tutorial, you
-# don't need to know exactly how they work, but if you'd like to read more on
-# them, see https://peps.python.org/pep-0318/.
-#
-# In short, the decorator declares the function it decorates as a FastAPI route
-# with the path of the provided route. This line declares that a new GET route
-# called "/" so that if you access "http://localhost:5000/", the below
-# dictionary will be returned as a JSON response with the status code 200.
-#
-# For any other routes you declare, like the `/home` route below, you can access
-# them at "http://localhost:5000/home". Because of this, we'll be omitting the
-# domain portion for the sake of brevity.
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
 
-
-# @app.get("/home")
-# def home():
-#     return {"message": "This is the home page"}
-
-
-# The routes that you specify can also be dynamic, which means that any path
-# that follows the format `/items/[some integer]` is valid. When providing
-# such path parameters, you'll need to follow this specific syntax and state
-# the type of this argument.
-#
-# This path also includes an optional query parameter called "q". By accessing
-# the URL "/items/123456?q=testparam", the JSON response:
-#
-# { "item_id": 123456, "q": "testparam" }
-#
-# will be returned. Note that if `item_id` isn't an integer, FastAPI will
-# return a response containing an error statement instead of our result.
-# @app.get("/items/{item_id}")
-# def read_item(item_id: int, q: Optional[str] = None):
-#     return {"item_id": item_id, "q": q}
 
 @app.get("/{degree}")
 def get_degree(degree: str):
@@ -84,7 +47,6 @@ def get_degree(degree: str):
 @app.get("/courses/{course_id}")
 def get_course(course_id: str):
     # gets the course info given its course id
-    # res = requests.get(f"{os.getenv('PETER_PORTAL_URL')}/courses/{course_id}")
     res = requests.get(f"https://api-next.peterportal.org/v1/rest/courses/{course_id}")
     return res.json()
 
@@ -101,8 +63,6 @@ def get_course_prereq(course_id: str):
 @app.get("/courses/complete-prereq/{course_id}")
 def get_complete_preq(course_id:str, seen_courses={}):
     # gets the complete pre req tree for a certain course
-    # pretty slow
-    # seen_courses = seen_courses
     if course_id in seen_courses.keys():
         return {'completeTree': seen_courses[course_id]['prerequisiteTree'], 'height': seen_courses[course_id]['height']}
     else:
@@ -112,7 +72,6 @@ def get_complete_preq(course_id:str, seen_courses={}):
 def process_tree(tree: dict, seen_courses={}):
     # helper to create the complete pre req tree for a course
     # recurses down to build entire tree
-    # seen_courses = seen_courses
     complete_tree = {'completeTree': {}, 'height': 0}
     if 'height' in tree.keys():
         complete_tree['height'] = tree['height']
@@ -185,8 +144,6 @@ def get_tree_for_degree(school, degree):
             tree_info= get_complete_preq(course, seen_courses)
             seen_courses[course] = {"prerequisiteTree": tree_info['completeTree'], "height": tree_info['height']}
             tree[degree][course] = {"prerequisiteTree": tree_info['completeTree'], "height": tree_info['height']}
-    # file = open('compsci.json', 'w')
-    # json.dump(tree, file)
     return tree
     
 
@@ -194,7 +151,6 @@ def get_tree_for_degree(school, degree):
 # TODO: Add POST route for demo
 @app.post('/add-courses/{course_id}')
 def add_course(course_id):
-
     pass
 
 
