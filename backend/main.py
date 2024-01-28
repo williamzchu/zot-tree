@@ -72,6 +72,15 @@ def read_root():
 # def read_item(item_id: int, q: Optional[str] = None):
 #     return {"item_id": item_id, "q": q}
 
+@app.get("/{degree}")
+def get_degree(degree: str):
+    try:
+        f = open(degree + ".json", 'w')
+        s = json.load(f)
+        return s
+    except (FileNotFoundError):
+        return {"Degree not Found": []}
+
 @app.get("/courses/{course_id}")
 def get_course(course_id: str):
     # gets the course info given its course id
