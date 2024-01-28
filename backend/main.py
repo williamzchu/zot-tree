@@ -162,16 +162,18 @@ def process_tree(tree: dict, seen_courses={}, seen=False):
 @app.get("/tree/{school}/{degree}")
 def get_tree_for_degree(school, degree):
     tree = {degree:{}}
-    seen_courses = {}
-    for d in degree_courses[school]:
-        if d[0] == degree:
-            courses = d[2]
-    for course in courses:
-        if course in seen_courses.keys():
-            tree[degree][course] = seen_courses[course]
-        else:
-            tree_info, seen_courses = get_complete_preq(course, seen_courses, True)
-            tree[degree][course] = tree_info
+    # seen_courses = {}
+    # for d in degree_courses[school]:
+    #     if d[0] == degree:
+    #         courses = d[2]
+    # for course in courses:
+    #     if course in seen_courses.keys():
+    #         # print(course, seen_courses[course])
+    #         tree[degree][course] = seen_courses[course]
+    #     else:
+    #         tree_info, seen_courses = get_complete_preq(course, seen_courses, True)
+    #         tree[degree][course] = tree_info
+    # print(seen_courses)
     return tree
     
 
