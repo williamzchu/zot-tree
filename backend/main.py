@@ -123,7 +123,7 @@ def process_tree(tree: dict, seen_courses={}) -> (dict, int):
                         seen_courses[or_course_id] = {"prerequisiteTree": or_course['prerequisiteTree'], "height": or_course_tree['height']}
                         heights.append(or_course_tree['height'])
                         complete_tree['completeTree']['OR'].append(or_course)
-        complete_tree['height'] += (max(heights) + 1)
+        complete_tree['height'] += (max(heights)+1)
         if complete_tree['completeTree']['OR'] == [] or complete_tree['completeTree']['OR'] == [{}]:
             complete_tree['completeTree'] = {}
     if 'AND' in tree.keys():
@@ -143,14 +143,15 @@ def process_tree(tree: dict, seen_courses={}) -> (dict, int):
                         and_course = {'courseId': and_course_id, "prerequisiteTree": seen_courses[and_course_id]['prerequisiteTree'], "height": seen_courses[and_course_id]['height']}
                     else:
                         and_course_tree = get_complete_preq(and_course_id, seen_courses)
-                        print(and_course_tree)
                         and_course = {'courseId': and_course_id, "prerequisiteTree": and_course_tree['completeTree'], "height": and_course_tree['height']}
                         seen_courses[and_course_id] = {"prerequisiteTree": and_course['prerequisiteTree'], "height": and_course['height']}
                         heights.append(and_course_tree['height'])
                         complete_tree['completeTree']['AND'].append(and_course)
-        complete_tree['height'] += (max(heights) + 1)
+        complete_tree['height'] += (max(heights)+1)
         if complete_tree['completeTree']['AND'] == [] or complete_tree['completeTree']['AND'] == [{}]:
             complete_tree['completeTree'] = {}
+        if complete_tree['completeTree'] == {}:
+            complete_tree['height'] = 0
     return complete_tree
 
 @app.get("/tree/{school}/{degree}")
