@@ -1,0 +1,36 @@
+.node {
+  background-color: gainsboro;
+  border-radius: 0.5rem;
+  width: 7.5rem;
+  text-align: center;
+  margin: 1rem;
+  border-style: solid;
+  border-width: 0.2rem;
+  color: black;
+}
+
+.completed {
+  /* background-color: green; */
+  border-color: green;
+  border-style: solid;
+  border-width: 0.2rem;
+  color:green;
+}
+
+.incomplete {
+  /* background-color: red; */
+  border-color: red;
+  border-style: solid;
+  border-width: 0.2rem;
+  color: red;
+}
+
+.or-complete {
+  background-color: #585858;
+}
+
+.specialization {
+  border-color: skyblue;
+  border-style: solid;
+  border-width: 0.2rem;
+}

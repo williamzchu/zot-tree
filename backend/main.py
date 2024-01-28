@@ -8,11 +8,26 @@ from typing import Optional
 
 import uvicorn
 from fastapi import FastAPI, status
+import requests
+# from dotenv import load_env
+# import os
+from fastapi.middleware.cors import CORSMiddleware
 
+# load_env()
 
 # Initializing and setting configurations for your FastAPI application is one
 # of the first things you should do in your code.
 app = FastAPI()
+
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # The line starting with "@" is a Python decorator. For this tutorial, you
@@ -32,9 +47,9 @@ def read_root():
     return {"Hello": "World"}
 
 
-@app.get("/home")
-def home():
-    return {"message": "This is the home page"}
+# @app.get("/home")
+# def home():
+#     return {"message": "This is the home page"}
 
 
 # The routes that you specify can also be dynamic, which means that any path
@@ -49,12 +64,97 @@ def home():
 #
 # will be returned. Note that if `item_id` isn't an integer, FastAPI will
 # return a response containing an error statement instead of our result.
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Optional[str] = None):
-    return {"item_id": item_id, "q": q}
+# @app.get("/items/{item_id}")
+# def read_item(item_id: int, q: Optional[str] = None):
+#     return {"item_id": item_id, "q": q}
+
+@app.get("/courses/{course_id}")
+def get_course(course_id: str):
+    # gets the course info given its course id
+    # res = requests.get(f"{os.getenv('PETER_PORTAL_URL')}/courses/{course_id}")
+    res = requests.get(f"https://api-next.peterportal.org/v1/rest/courses/{course_id}")
+    return res.json()
+
+@app.get("/courses/prereq/{course_id}")
+def get_course_prereq(course_id: str):
+    # gets the pre req tree for a course if it exists
+    res = get_course(course_id)
+    if res['statusCode'] == 200:
+        return res['payload']['prerequisiteTree']
+    else:
+        return {}
+
+@app.get("/courses/complete-prereq/{course_id}")
+def get_complete_preq(course_id:str, seen_courses={}):
+    # gets the complete pre req tree for a certain course
+    # pretty slow / has repeat nodes
+    seen_courses = seen_courses
+    tree = get_course_prereq(course_id)
+    return process_tree(tree, seen_courses)
+
+def process_tree(tree: dict) -> (dict, int):
+    # helper to create the complete pre req tree for a course
+    seen_courses = seen_courses
+    complete_tree = {'completeTree': {}, 'height': 0}
+    if 'height' in tree.keys():
+        complete_tree['height'] = tree['height']
+    if 'OR' in tree.keys():
+        complete_tree['completeTree']['OR'] = []
+        heights = [0]
+        for or_course in tree['OR']:
+            if 'AND' in or_course.keys():
+                process = process_tree(or_course, seen_courses)
+                tree = process['completeTree']
+                height = process['height']
+                heights.append(height)
+                complete_tree['completeTree']['OR'].append(tree)
+            else:
+                if 'courseId' in or_course.keys():
+                    or_course_id = or_course['courseId'].replace(" ", "")
+                    if or_course_id in seen_courses:
+                        or_course = {'courseId': or_course_id, "prerequisiteTree": seen_courses[or_course_id]}
+                    else:
+                        or_course_tree = get_complete_preq(or_course_id, seen_courses)
+                        or_course = {'courseId': or_course_id, "prerequisiteTree": or_course_tree['completeTree']}
+                        seen_courses[or_course_id] = or_course['prerequisiteTree']
+                        heights.append(or_course_tree['height'])
+                        complete_tree['completeTree']['OR'].append(or_course)
+        complete_tree['height'] += (max(heights) + 1)
+        if complete_tree['completeTree']['OR'] == [] or complete_tree['completeTree']['OR'] == [{}]:
+            complete_tree['completeTree'] = {}
+    if 'AND' in tree.keys():
+        complete_tree['completeTree']['AND'] = []
+        heights= [0]
+        for and_course in tree['AND']:
+            if 'OR' in and_course.keys():
+                process = process_tree(and_course, seen_courses)
+                tree = process['completeTree']
+                height = process['height']
+                heights.append(height)
+                complete_tree['completeTree']['AND'].append(tree)
+            else:
+                if 'courseId' in and_course.keys():
+                    and_course_id = and_course['courseId'].replace(" ", "")
+                    if and_course_id in seen_courses:
+                        and_course = {'courseId': and_course_id, "prerequisiteTree": seen_courses[and_course_id]}
+                    else:
+                        and_course_tree = get_complete_preq(and_course_id, seen_courses)
+                        and_course = {'courseId': and_course_id, "prerequisiteTree": and_course_tree['completeTree']}
+                        seen_courses[and_course_id] = and_course['prerequisiteTree']
+                        heights.append(and_course_tree['height'])
+                        complete_tree['completeTree']['AND'].append(and_course)
+        complete_tree['height'] += (max(heights) + 1)
+        if complete_tree['completeTree']['AND'] == [] or complete_tree['completeTree']['AND'] == [{}]:
+            complete_tree['completeTree'] = {}
+    return complete_tree
+    
 
 
 # TODO: Add POST route for demo
+@app.post('/add-courses/{course_id}')
+def add_course(course_id):
+
+    pass
 
 
 if __name__ == "__main__":

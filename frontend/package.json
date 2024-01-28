@@ -10,8 +10,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-three/drei": "9.88",
+    "@react-three/fiber": "8.15",
+    "drei": "^2.2.21",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-d3-tree": "^3.6.2",
+    "react-dom": "^18.2.0",
+    "three": "^0.158.0",
+    "zingchart": "^2.9.13",
+    "zingchart-react": "^3.2.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.37",
